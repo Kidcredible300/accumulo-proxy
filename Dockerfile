@@ -25,16 +25,16 @@ ARG ACCUMULO_VERSION=2.1.3
 ARG ACCUMULO_PROXY_VERSION=2.0.0-SNAPSHOT
 
 ARG HADOOP_HASH=de3eaca2e0517e4b569a88b63c89fae19cb8ac6c01ff990f1ff8f0cc0f3128c8e8a23db01577ca562a0e0bb1b4a3889f8c74384e609cd55e537aada3dcaa9f8a
-ARG ZOOKEEPER_HASH=9002a0475fdb38541e78048709006926655c726e93e823b84e2dbf5b53fd539a5342e7266447d23db0e5528e27a19961b115b180c94f2272ff124c7e5c8304e7
+ARG ZOOKEEPER_HASH=2b5ae02d618a27ca8cd54924855d5344263b7d9dee760181f9d66bafa9230324d2ad31786895f0654c969dc38d4a3d0077f74cc376b58b5fa2fb94beb1ab445f
 ARG ACCUMULO_HASH=1a27a144dc31f55ccc8e081b6c1bc6cc0362a8391838c53c166cb45291ff8f35867fd8e4729aa7b2c540f8b721f8c6953281bf589fc7fe320e4dc4d20b87abc4
 
 # Download from Apache mirrors instead of archive #9
-ENV APACHE_DIST_URLS \
+ENV APACHE_DIST_URLS="\
   https://www.apache.org/dyn/closer.cgi?action=download&filename= \
 # if the version is outdated (or we're grabbing the .asc file), we might have to pull from the dist/archive :/
   https://www-us.apache.org/dist/ \
   https://www.apache.org/dist/ \
-  https://archive.apache.org/dist/
+  https://archive.apache.org/dist/"
 
 RUN set -eux; \
   download_bin() { \
@@ -63,16 +63,16 @@ RUN tar xzf /tmp/hadoop.tar.gz -C /opt/ && ln -s /opt/hadoop-${HADOOP_VERSION} /
 RUN tar xzf /tmp/apache-zookeeper.tar.gz -C /opt/ && ln -s /opt/apache-zookeeper-${ZOOKEEPER_VERSION}-bin /opt/apache-zookeeper
 RUN tar xzf /tmp/accumulo.tar.gz -C /opt/ && ln -s /opt/accumulo-${ACCUMULO_VERSION} /opt/accumulo && sed -i 's/\${ZOOKEEPER_HOME}\/\*/\${ZOOKEEPER_HOME}\/\*\:\${ZOOKEEPER_HOME}\/lib\/\*/g' /opt/accumulo/conf/accumulo-env.sh
 
-ENV HADOOP_HOME /opt/hadoop
-ENV ZOOKEEPER_HOME /opt/apache-zookeeper
-ENV ACCUMULO_HOME /opt/accumulo
+ENV HADOOP_HOME=/opt/hadoop
+ENV ZOOKEEPER_HOME=/opt/apache-zookeeper
+ENV ACCUMULO_HOME=/opt/accumulo
 
 # Add the proxy binary
 COPY target/accumulo-proxy-${ACCUMULO_PROXY_VERSION}-bin.tar.gz /tmp/
 RUN tar xzf /tmp/accumulo-proxy-${ACCUMULO_PROXY_VERSION}-bin.tar.gz -C /opt/accumulo-proxy --strip 1
-ENV ACCUMULO_PROXY_HOME /opt/accumulo-proxy
+ENV ACCUMULO_PROXY_HOME=/opt/accumulo-proxy
 
 # Ensure Accumulo is on the path.
-ENV PATH "${PATH}:${ACCUMULO_HOME}/bin"
+ENV PATH="${PATH}:${ACCUMULO_HOME}/bin"
 
 CMD ["/opt/accumulo-proxy/bin/accumulo-proxy", "-p", "/opt/accumulo-proxy/conf/proxy.properties"]
